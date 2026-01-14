@@ -1,0 +1,15 @@
+item_0  "\\bfseries\\item \\small "
+item_1  "\\mdseries\\subitem \\small "
+item_2  "\\mdseries\\subsubitem \\small "
+
+item_01 "\\mdseries\\subitem \\small "
+item_x1 ".\\mdseries\\subitem \\small "
+item_12 "\\mdseries\\subsubitem \\small "
+item_x2 "\\mdseries\\subsubitem \\small "
+
+delim_0 ".\\dotfill"
+delim_1 "\\dotfill"
+delim_2 "\\dotfill"
+
+group_skip "\\n" % No vertical space between letters
+

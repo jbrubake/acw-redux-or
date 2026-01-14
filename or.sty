@@ -1,0 +1,758 @@
+% TODO: linespacing for small fonts (copyright and gramQuote) is too large
+% TODO: Make spacing around \myrule consistent
+% TODO: TOC: hanging indent for long chapter titles
+% TODO: TOC: properly center chapter numbers on the page
+
+\ProvidesPackage{or}
+
+\renewcommand{\footnoterule}{%
+    \kern -3pt
+    \hrule width \textwidth
+    \kern 2.6pt
+}
+\newenvironment{casualties}
+{
+    \begin{footnotesize}
+        \centering
+}
+{
+    \end{footnotesize}
+}
+\newcommand*{\kiawia}[1]{\textit{\textsc{\MakeUppercase{#1}}}.\par}
+\newcommand*{\kiawiaState}[1]{
+    \vspace{5pt}
+    \textsc{\MakeLowercase{#1}}.
+    \vspace{5pt}
+    \par
+}
+% Content Shortcuts %%%1
+%
+\newcommand*{\theauthor}{Robert N. Scott}
+\newcommand*{\theauthorrank}{Bvt. Lieut. Col.}
+\newcommand*{\wia}{\textsuperscript\ w}
+\newcommand*{\kia}{\textdagger}
+
+% Dinkus %%%1
+%
+\newcommand*{\rulethick}{0.5pt}
+
+\newcommand*{\myrule}{\centerline{\rule{0.10\linewidth}{\rulethick}}}
+
+\newcommand*{\secdinkus}   {\dinkus{0.10}}
+\newcommand*{\subsecdinkus}{\dinkus{0.05}}
+\newcommand*{\reportdinkus}{\dinkus{0.02}}
+
+% TODO: \secdinkus still appeared at the bottom of a page
+\newcommand*{\dinkus}[1]{
+    \newbox\sepbox
+    \setbox\sepbox=\vbox{
+        \vspace{1em}
+        \begin{center}
+            \rule{#1\linewidth}{\rulethick}
+        \end{center}
+        \vspace{1em}
+    }
+    \cleaders\copy\sepbox\vskip\ht\sepbox
+}
+
+% Page Layout & Fonts %%%1
+%
+\RequirePackage[
+    letterpaper,
+    inner=1.00in,
+    outer=0.50in,
+    top=1.0in,
+    bottom=1.0in,
+    heightrounded,
+    headheight=22pt, % suppress fancyhdr warnings
+]{geometry}
+\RequirePackage{tgtermes} % For Times clone
+\RequirePackage[T1]{fontenc}
+
+% Table of Contents %%%1
+%
+\RequirePackage{tocloft} % Configure ToC
+    \setcounter{tocdepth}{1}            % Include chapters and sections
+    \renewcommand*{\cftdotsep}{1.0}     % dot separation
+    \renewcommand*{\@tocrmarg}{3.55em}  % increase space for page #
+    \renewcommand*{\@pnumwidth}{2.55em}
+
+    \renewcommand*{\cfttoctitlefont}{\hfil\Large\normalfont} % ToC title font
+    \renewcommand*{\contentsname}{CONTENTS.}                 % ToC title
+    \renewcommand*{\cftaftertoctitle}{\par\myrule}           % After ToC title
+
+    %            CHAPTER <#>.
+    % <chapter name>..... <page #>
+    %
+    \renewcommand*{\cftchapfont}{\hfil\bfseries} % center and bold \thechapter
+    \renewcommand*{\cftchappresnum}{\MakeUppercase{\chaptername}\ }
+    \renewcommand*{\cftchapaftersnum}{.}
+    \renewcommand*{\cftchapdotsep}{\cftdotsep}
+    \renewcommand*{\cftchapaftersnumb}{\\}     % Newline after chapter #
+    \cftsetindents{chapter}{0em}{0em}         % Don't indent chapter name
+
+    % <section name>..... <page #>
+    %
+    \renewcommand*{\cftsecpresnum}{\begin{lrbox}{\@tempboxa}} % Store but never
+    \renewcommand*{\cftsecaftersnum}{\end{lrbox}}             % show \thesection
+    \renewcommand*{\cftsecdotsep}{\cftdotsep}
+    \renewcommand*{\cftsecaftersnumb}{}
+    \cftsetindents{section}{0em}{0em}        % Don't indent section name
+
+% Paragraph Layout %%%1
+%
+\RequirePackage[
+    indent=1em,
+    skip={0pt},
+    tocskip=1pt,                      % \parskip for \tableofcontents
+]{parskip}
+\RequirePackage{indentfirst} % indent first paragraph in section, chapter, etc
+\RequirePackage{setspace}    % adjust line spacing
+
+% Chapter, Section, etc Formats %%%1
+%
+\RequirePackage[explicit]{titlesec}
+\RequirePackage{ifmtarg} % test for empty arguments
+
+\setcounter{secnumdepth}{2} % number subsections
+\renewcommand*{\thechapter}{\Roman{chapter}}        % Capital Roman numerals
+\renewcommand*{\thesection}{\arabic{section}}       % Don't include \thechapter
+\renewcommand*{\thesubsection}{\arabic{subsection}} % Don't include \thechapter
+
+% Chapter format: %%%2
+%
+%    CHAPTER #.
+%   CHAPTER TITLE.
+%       ---
+%     Subtitle. (optional)
+%       ---     (only if subtitle present)
+%
+\titlespacing{\chapter}{0pt}{2cm}{0cm}
+\titleformat{\chapter}[block]
+    {\bfseries}                         % format
+    {\centerline{\MakeUppercase{\chaptername}~\thechapter.}} % chapter #
+    {0ex}                               % no # and name separation
+    { % Chapter title and subtitle
+        \begin{minipage}{\linewidth} % wrap long titles
+            \vspace{0.50cm}
+            \centering
+            \bfseries\Large\MakeUppercase{#1.}
+            \myrule
+            \vspace{0.30cm}
+            \@ifundefined{@chapsubtitle}{}{ % optional subtitle
+                \large\@chapsubtitle.
+                \vspace{0.10cm}
+                \myrule
+            }
+    }
+    [   \end{minipage}] % close the minipage
+
+% Section format: %%%2
+%
+%     SECTION TITLE.
+% SECTION TITLE.--subtitle (if subtitle present)
+%
+\titleformat{\section}[block]
+    {\bfseries\large} % format
+    {}{0ex}           % do not show label 
+    {
+        \begin{minipage}{\linewidth} % wrap long titles
+            \vspace{0.50cm}
+            \centering
+            \MakeUppercase{#1.}%
+            \@ifundefined{@secsubtitle}{}{% % optional subtitle
+                \textemdash\@secsubtitle.
+            }
+    }
+    [   \end{minipage}] % close the minipage
+
+% Subsection format: %%%2
+%
+%       No. #.
+%       Title.
+\titleformat{name=\subsection,numberless}[block]
+    {}                                 % format
+    {}{0ex} % no subsection #
+    { % Subsection title
+        \begin{minipage}{\linewidth} % wrap long titles
+            \centering
+            \itshape#1.
+    }
+    [   \end{minipage}] % close the minipage
+
+\titleformat{\subsection}[block]
+    {}                                 % format
+    {\centerline{No.~\thesubsection.}} % subsection #
+    {0ex}                              % no # and name separation
+    { % Subsection title
+        \begin{minipage}{\linewidth} % wrap long titles
+            \vspace{0.20cm}
+            \centering
+            \itshape#1.
+    }
+    [   \end{minipage}] % close the minipage
+% Override \chapter to allow subtitles %%%2
+%
+% Save standard versions
+\let\Oldchapter\chapter
+
+% Provider star and nostar versions of new \chapter
+\renewcommand*{\chapter}{\@ifstar{\starchapter}{\nostarchapter}}
+
+% Set the subtitle and call standard \chapter
+\newcommand*{\starchapter}[2]{
+    % Set @chapsubtitle if not empty
+    \@ifnotmtarg{#2}{\def\@chapsubtitle{#2}}
+    % Call standard \chapter
+    \Oldchapter*{#1}
+    % Unset @chapsubtitle
+    \let\@chapsubtitle\@undefined
+}
+
+% Set the subtitle and TOC label and call standard \chapter
+\newcommand*{\nostarchapter}[3][]{
+    % Set @chapsubtitle if not empty
+    \@ifnotmtarg{#3}{\def\@chapsubtitle{#3}}
+    % Call standard \chapter
+    \Oldchapter[
+        % Build TOC entry
+        \@ifmtarg{#1} % if optional arg is not empty then
+            {#2.\@ifnotmtarg{#3}{\textemdash#3.}} % include subtitle else
+            {#1} % standard behavior
+    ]{#2} % Pass title (\titleformat will add @chapsubtitle)
+    % Unset @chapsubtitle
+    \let\@chapsubtitle\@undefined
+}
+
+% Override \section to allow subtitles %%%2
+%
+% Save standard versions
+\let\Oldsection\section
+
+% Provider star and nostar versions of new \section
+\renewcommand*{\section}{\@ifstar{\starsection}{\nostarsection}}
+
+% Set the subtitle and call standard \section
+\newcommand*{\starsection}[2]{
+    % Set @secsubtitle if not empty
+    \@ifnotmtarg{#2}{\def\@secsubtitle{#2}}
+    % Call standard \section
+    \Oldsection*{#1}
+    % Unset @secsubtitle
+    \let\@secsubtitle\@undefined
+}
+
+% Set the subtitle and TOC label and call standard \section
+\newcommand*{\nostarsection}[3][]{
+    % Set @secsubtitle if not empty
+    \@ifnotmtarg{#3}{\def\@secsubtitle{#3}}
+    % Call standard \section
+    \Oldsection[
+        % Build TOC entry
+        \@ifmtarg{#1} % if optional arg is not empty then
+            {#2.\@ifnotmtarg{#3}{\textemdash#3.}} % include subtitle else
+            {#1} % standard behavior
+    ]{#2} % Pass title (\titleformat will add @secsubtitle)
+    % Unset @secsubtitle
+    \let\@secsubtitle\@undefined
+}
+% Header and Footer %%%1
+%
+\RequirePackage{fancyhdr}
+    % No header and footer rules
+    \renewcommand*{\headrulewidth}{0pt}
+    \renewcommand*{\footrulewidth}{0pt}
+
+    \fancypagestyle{frontmatter}{%
+        \fancyhf{}
+        \fancyfoot[C]{\thepage}
+    }
+    \fancypagestyle{mainmatter}{%
+        \fancyhf{}
+
+        % leftmark = chapter name
+        % rightmark = section name
+        \renewcommand*{\chaptermark}[1]{\markboth{\MakeUppercase{##1}}{}}
+        \renewcommand*{\sectionmark}[1]{\markright{\MakeUppercase{##1}}}
+
+        % Odd pages:
+        % Chap #.]    CHAPTER_NAME    #
+        % Even pages:
+        % #           CHAPTER_NAME    [Chap #.
+        \fancyhead[LE,RO]{\Large\thepage}
+        \fancyhead[LO]{\small\textsc{Chap} \thechapter.]}
+        \fancyhead[RE]{[\small\textsc{Chap} \thechapter.}
+        \fancyhead[CO]{\normalsize\rightmark}
+        \fancyhead[CE]{\normalsize\leftmark}
+    }
+    \fancypagestyle{backmatter}{%
+        \fancyhf{}
+        \fancyhead[LE,RO]{\Large\thepage}
+    }
+    % First page of a chapter
+    \fancypagestyle{plain}{%
+        \fancyhf{}
+        \fancyfoot[LO,RE]{\large\thepage\ \small R R\textemdash{}\MakeUppercase{Vol. \thevolume}}
+    }
+
+
+% Tables %%%1
+%
+\RequirePackage{enumitem} %     or itemize has extra space everywhere
+
+\RequirePackage{./tabularray}   % Better tables. Local version as system one is too old
+    \UseTblrLibrary{booktabs} % \midrule, \toprule, etc
+    \RequirePackage{varwidth} % Cannot use the version included in tabularray
+
+% Default table styling %%%2
+%
+\SetTblrInner[tblr,talltblr,longtblr]{
+}
+\SetTblrOuter[tblr,talltblr,longtblr]{
+    label = none, % Just use the table caption
+}
+
+% longtblr: 'continued' footer
+% \DeclareTblrTemplate{contfoot-text}{or}{\centerline{\footnotesize{Continued on next page}}}
+\DeclareTblrTemplate{contfoot-text}{or}{}
+\SetTblrTemplate{contfoot-text}{or}
+
+% longtblr: suppress 'continued' header
+\DeclareTblrTemplate{conthead-text}{or}{}
+\SetTblrTemplate{conthead-text}{or}
+
+% Footnotes %%%2
+%
+% TODO: Use these to put tblr footnotes at bottom of page
+% and not table - will likely require changing all the longtblrs
+% to multiple page long tblrs
+\UseTblrLibrary{counter}
+\UseTblrLibrary{functional}
+\IgnoreSpacesOn
+\tlNew \gFootNoteTl
+\intNew \gFootNoteInt
+\prgNewFunction \footNote {m}
+  {
+    \IfBooleanF { \lTblrMeasuringBool }
+      {
+        \tlPutRight \gFootNoteTl
+          {
+            \stepcounter{footnote}
+            \footnotetext{#1}
+          }
+        \prgReturn {\footnotemark{}}
+      }
+  }
+\AddToHook{env/tblr/before}{
+  \intSetEq \gFootNoteInt \c@footnote
+  \tlClear \gFootNoteTl
+}
+\AddToHook{env/tblr/after}{
+  \intSetEq \c@footnote \gFootNoteInt
+  \tlUse \gFootNoteTl
+}
+\IgnoreSpacesOff
+
+% "Returns" %%%2
+%
+% Commands to simplify building the table %%%3
+%
+% Increase row spacing
+\newcommand{\oobspace}{\SetRow{abovesep+=2pt,belowsep+=2pt}}
+% Use dots for "0"
+\newcommand*{\oobnone}{\ldots\ldots}
+% Basic divider
+\newcommand{\oobrule}{\cmidrule{3-5}}
+% Level divider
+\newcommand{\oobdblrule}{\cmidrule[1.00pt]{3-5}}
+% Table header
+\newcommand{\oobhdr}{
+    \toprule
+    & Command.
+        & \rotatebox[origin=c]{90}{Strength.}
+            & \rotatebox[origin=c]{90}{\parbox{\oobboxwidth}{\centering\ Losses.}}
+                & \rotatebox[origin=c]{90}{Percentage.} \\
+}
+% "Recapitulation" summary
+\newcommand*{\oobrecap}{
+    \midrule\SetRow{abovesep+=9pt,belowsep+=9pt}\SetCell[c=5]{c}\MakeUppercase{Recapitulation}. \\ \midrule
+}
+
+% Unit headers %%%3
+\newcommand*{\oobtop}[3]{% % Top level unit
+    & \oobspace\SetRow{c}\MakeUppercase{#1}. \\
+    & \oobspace\SetRow{c}#2 \textsc{#3}. \\
+}
+\newcommand*{\oobdiv}[3]{% % Division
+    & \oobspace\SetRow{c}\textsc{\MakeLowercase{#1}}. \\
+    & \oobspace\SetRow{c}#2 \textsc{#3}. \\
+}
+\newcommand*{\oobbde}[3]{% Brigade
+    & \oobspace\SetRow{c}\textit{#1}. \\
+    & \oobspace\SetRow{c}#2 \textsc{#3}. \\
+}
+\newcommand*{\oobart}[1]{% Division artillery (has no commander)
+    & \oobspace\SetRow{c}\textit{#1}. \\
+}
+\newcommand*{\oobrgt}[6]{% Regiment
+    #1 & #2, #3\dotfill & #4 & #5 & #6 \\
+}
+% Totals %%%3
+\newcommand*{\oobtot}[4]{% Brigade total
+    & \oobspace\oobrule\hspace*{1em}#1\dotfill & #2 & #3 & #4 \\ \oobdblrule
+}
+\newcommand*{\oobsum}[4]{% Sum total
+    & \oobspace\hspace*{1em}#1\dotfill & #2 & #3 & #4 \\
+}
+\newcommand*{\oobsub}[4]{% Recapitulation total
+    & #1\dotfill & #2 & #3 & #4 \\
+}
+
+% Calculate widths %%%3
+%
+\RequirePackage{calc}
+% Max width of strength, loss and % cells is enough to fit \oobnone
+\newdimen\oobnonewidth
+\setbox0=\hbox{\oobnone}
+\oobnonewidth=\wd0
+
+% Width of the longest header box to properly space and center the headers
+\newdimen\oobboxwidth
+\setbox0=\hbox{Percentages.}
+\oobboxwidth=\wd0
+
+% Table environment and theme %%%3
+%
+\NewTblrEnviron{oob}
+\SetTblrOuter[oob]{
+    long,         % longtblr
+    label = none, % Just use the table caption
+    theme = oob,
+    expand = % Expand these macros. Order matters if there is nesting
+        \oobhdr
+        \oobrecap
+        \oobtop
+        \oobdiv
+        \oobbde
+        \oobart
+        \oobsub
+        \oobtot
+        \oobsum
+        \oobrgt
+        \oobspace
+        \oobrule
+        \oobdblrule,
+}
+\SetTblrInner[oob]{
+    rowsep   = 0pt,
+    colspec  = {rX[l]|Q[r,m,\oobnonewidth]|Q[r,\oobnonewidth]|Q[r,\oobnonewidth]},
+    row{1}   = {c},
+    hline{2} = {1pt},
+    cells    = {font=\footnotesize},
+    rowhead  = 1,
+}
+\NewTblrTheme{oob}{
+    \SetTblrStyle{note-tag}{font=\footnotesize}
+    \SetTblrStyle{note-text}{font=\footnotesize}
+    \DeclareTblrTemplate{contfoot-text}{oob}{}
+    \SetTblrTemplate{contfoot-text}{oob}
+}
+
+% Chapter and section "TOC" tables %%%2
+%
+\NewTblrEnviron{toc}
+\SetTblrOuter[toc]{
+    long,         % longtblr
+    label = none, % Just use the table caption
+    theme = toc,
+}
+\SetTblrInner[toc]{
+    colspec   = {lrX[l]},
+    columns   = {leftsep=0pt,rightsep=0pt},
+    column{2} = {leftsep=2pt},
+    cells     = {font=\footnotesize},
+}
+\NewTblrTheme{toc}{
+    % Format caption
+    \DeclareTblrTemplate{caption-text}{default}{\MakeUppercase{\InsertTblrText{caption}}}
+    \SetTblrStyle{caption-text}{font=\bfseries}
+    % Do not put caption on following pages
+    \DeclareTblrTemplate{capcont}{default}{}
+}
+
+% Tables in dispatches %%%2
+%
+\NewTblrEnviron{dispatch}
+\SetTblrOuter[dispatch]{
+    label = none, % Just use the table caption
+    theme = dispatch,
+}
+\SetTblrInner[dispatch]{
+    rowsep    = 0pt,
+    cells     = {font=\footnotesize},
+}
+\NewTblrTheme{dispatch}{
+    % Format caption
+    \DeclareTblrTemplate{caption-text}{default}{\MakeUppercase{\InsertTblrText{caption}}}
+    \SetTblrStyle{caption-text}{font=\bfseries}
+    % Do not put caption on following pages
+    \DeclareTblrTemplate{capcont}{default}{}
+}
+% Full OOB %%%1
+
+\RequirePackage{tabto}
+\newcommand*{\tb}{\tabto{2em}}
+\newcommand*{\staff}[3]{
+    \centerline{\MakeLowercase{\textsc{#1}}.}\par
+    \vspace{5pt}
+    \centerline{#2 \textsc{#3}}\par
+    \vspace{5pt}
+}
+\newcommand*{\corps}[3]{
+    \centerline{\MakeUppercase{#1}.}\par
+    \vspace{5pt}
+    \centerline{#2 \textsc{#3}}\par
+    \vspace{5pt}
+}
+\newcommand*{\corpsCdrs}[2]{
+    \centerline{\MakeUppercase{#1}.}\par
+    \begin{center}
+        \begin{minipage}{0.47\textwidth}
+            \begin{enumerate}[label=(\arabic*.),nosep]
+            #2
+            \end{enumerate}
+        \end{minipage}
+    \end{center}
+    \par
+    \vspace{5pt}
+}
+\newcommand*{\division}[3]{
+    \centerline{\textsc{#1}.}\par
+    \vspace{5pt}
+    \centerline{#2 \textsc{#3}}\par
+    \vspace{5pt}
+}
+\newcommand*{\divisionCdrs}[2]{
+    \centerline{\textsc{#1}.}\par
+    \begin{center}
+        \begin{minipage}{0.47\textwidth}
+            \begin{enumerate}[label=(\arabic*.),nosep]
+            #2
+            \end{enumerate}
+        \end{minipage}
+    \end{center}
+    \par
+    \vspace{5pt}
+}
+\newcommand*{\bde}[3]{
+    {\centering
+        \textit{#1}. \\
+        \vspace{5pt}
+        #2 \textsc{#3} \\
+        \vspace{5pt}
+    }
+}
+\newcommand*{\bdeCdrs}[2]{
+    {\centering
+        \textit{#1}. \\
+        \vspace{5pt}
+        \begin{enumerate}[label=(\arabic*.),nosep]
+            #2
+        \end{enumerate}
+        \vspace{5pt}
+    }
+}
+\newcommand*{\otherbde}[1]{
+    \centerline{\textit{#1}.}
+    \vspace{5pt}
+}
+\newcommand*{\rgt}[3]{#1\tb\ #2, #3. \\}
+\newcommand*{\rgtCdrs}[3]{
+    #1\tb\ #2: \\
+    #3
+}
+\newcommand*{\corpsOneCdr}[2]{\item #1 \textsc{#2}}
+\newcommand*{\divOneCdr}[2]{\item #1 \textsc{#2}}
+\newcommand*{\bdeOneCdr}[2]{\item #1 \textsc{#2}}
+\newcommand*{\rgtOneCdr}[1]{\tb\hspace*{1em}#1\\}
+\newenvironment{fulloob}
+{
+    \footnotesize
+}
+{
+}
+\newenvironment{leftBde} %%%4
+    {
+        \begin{minipage}[t]{0.47\textwidth}
+    }
+    {
+        \end{minipage}
+    }
+\newenvironment{rightBde} %%%4
+    {
+        \hfill\vline\hfill
+        \begin{minipage}[t]{0.47\textwidth}
+    }
+    {
+        \end{minipage}
+    }
+\newenvironment{middleBde} %%%4
+    {
+        \begin{center}\begin{minipage}{0.5\textwidth}
+    }
+    {
+        \end{minipage}\end{center}
+    }
+
+% Actual Copyright %%%1
+%
+\newcommand*{\therealauthor}{Jeremy Brubaker}
+\newcommand*{\thelicense}{%
+    \copyright\ 2025 by \therealauthor. Licensed under CC BY-NC-ND 4.0.  To view a
+    copy of this license, visit
+    https://creativecommons.org/licenses/by-nc-nd/4.0/
+}
+
+\RequirePackage{hyperxmp} % PDF metadata and Link styling
+\RequirePackage{xcolor}   % color definitions
+\RequirePackage[             % Must be after hyperxmp
+    frenchlinks,             % Links are in small-caps
+    allbordercolors={white}, % Make the boxes around links disappear
+    pdftitle={War of the Rebellion: Official Records},
+    pdfauthor=\therealauthor,
+    pdfcopyright={War of the Rebellion: Official Records \thelicense{}},
+    pdflicenseurl=https://creativecommons.org/licenses/by-nc-nd/4.0/,
+]{hyperref}
+
+% Images %%%1
+%
+\RequirePackage{wrapfig}
+\RequirePackage{svg}
+    \svgpath{./img}
+
+% Miscellaneous %%%1
+%
+\RequirePackage[symbol]{footmisc}            % use asterisk, dagger, etc for footnotes
+\RequirePackage[vfrac]{mathfixs}             % Vulgar fractions
+\RequirePackage{nameref}                     % Named cross-references
+    \newcommand*\xref[1]{\nameref{#1} (\ref{#1})} % Cross-references: NAME (SECTION)
+
+\RequirePackage{imakeidx}
+    \makeindex[
+        columns=1,
+        options=-s or-index.ist,
+    ]
+
+% vim: fmr=%%%,%%%
+
+% Official Correspondence %%%1
+%
+\RequirePackage{pbox}
+\newcommand{\gramOrdersHeader}[5]{ %%%2
+    % \nulldelimiterspace is inserted after \left. so
+    % we back up that amount to remove all "indentation"
+    \noindent$\left.\kern-\nulldelimiterspace
+    \pbox{\textwidth}{\relax\ifvmode\centering\fi
+        \textsc{#4}, \\
+        No. #5.\strut
+    }\right\}$\hfill
+    % TODO: This is not completely flush with the right margin
+    \parbox{\textwidth-\widthof{$\left.\kern-\nulldelimiterspace#4,\right\}$}}{
+        \raggedleft
+        \textsc{#1},\hspace*{2.5em} \\
+        \textit{#2} #3.\hspace*{1.5em}
+        \strut
+    }
+    \nopagebreak\smallskip\par
+}
+
+\newcommand{\gramCircular}[4][]{ %%%2
+    % Order type
+    \textsc{Circular.}]\hspace*{\fill}
+    % HQ not present
+    \@ifnotmtarg{#2}{
+        % HQ
+        \textsc{#2},\hspace*{2em}\nopagebreak
+
+        % Push next line to the right
+        \hspace*{\fill}
+    }
+    % Optional Location, Location, Date
+    \@ifnotmtarg{#1}{\textsc{#1},} \textit{#3} #4.\hspace{1em}%
+    \nopagebreak\smallskip\par
+}
+\newcommand*{\gramHeader}[4][]{% %%%2
+    % HQ if present
+    \@ifnotmtarg{#2}{\hspace*{\fill}\textsc{#2},\hspace*{2em}}\nopagebreak
+
+    % Location and date
+    %
+    % Prepend spacing
+    \hspace*{\fill}
+    % Optional location
+    \@ifnotmtarg{#1}{\textsc{#1},{ }}
+    % Always end with (location and) date
+    \textit{#3} {#4}.\hspace{1em}\nopagebreak
+    \par\vspace{2pt}
+}
+\newcommand*{\gramTo}[3]{% %%%2
+    % Addressee
+    #1 \textsc{#2},\nopagebreak
+
+    % Title
+    \hspace*{2em}\textit{#3:}\nopagebreak
+    \par\vspace{2pt}
+}
+\newcommand*{\gramHi}[1]{\textsc{#1}:} %%%2
+
+\newcommand*{\gramClosing}[3]{% %%%2
+    % Valediction if present
+    \nopagebreak
+    \@ifnotmtarg{#1}{\hspace{2em}#1,}\nopagebreak
+
+    % Sender name
+    \hspace*{\fill}\MakeUppercase{#2},\hspace*{2em}\nopagebreak
+
+    % Sender title
+    \hspace*{\fill}\textit{#3}.\hspace*{1em}
+
+    \par
+}
+\newcommand*{\gramClosingBehalf}[3]{% %%%2
+    \nopagebreak
+    \hspace{2em}On behalf of #1:\nopagebreak
+
+    % Sender name
+    \hspace*{\fill}\MakeUppercase{#2},\hspace*{2em}\nopagebreak
+
+    % Sender title
+    \hspace*{\fill}\textit{#3}.\hspace*{1em}
+
+    \par
+}
+\newcommand*{\gramClosingBy}[3]{% %%%2
+    \nopagebreak
+    \hspace{2em}By order of #1:\nopagebreak
+
+    % Sender name
+    \hspace*{\fill}\MakeUppercase{#2},\hspace*{2em}\nopagebreak
+
+    % Sender title
+    \hspace*{\fill}\textit{#3}.\hspace*{1em}
+
+    \par
+}
+\newenvironment{gramQuote} %%%2
+    {
+        \vspace{0.5em}
+        \begin{scriptsize}
+            \begin{spacing}{.75}
+    }
+    {
+            \end{spacing}
+        \end{scriptsize}
+        \vspace{0.25em}
+    }
+
+% vim: fmr=%%%,%%%
+

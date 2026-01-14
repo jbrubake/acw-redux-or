@@ -1,0 +1,23 @@
+name: Build pdf
+on: [push]
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+      - name: pdflatex main
+        uses: dante-ev/latex-action@latest
+        with:
+          root_file: volume-vii.tex
+          args: -e '-shell-escape'
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: volume-vii.pdf
+          path: volume-vii.pdf
+      - name: Publish current release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: current
+          files: volume-vii.pdf

@@ -1,0 +1,7 @@
+imports: 
+  tabularray: ./
+
+curl module tabularray:
+  url: https://raw.githubusercontent.com/lvjr/tabularray/main/tabularray.sty
+  sha1: 875cb6da9386110cfabee7e71ca5a2ba5dcff068
+
