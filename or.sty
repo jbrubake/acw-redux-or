@@ -613,16 +613,17 @@
     https://creativecommons.org/licenses/by-nc-nd/4.0/
 }
 
-\RequirePackage{hyperxmp} % PDF metadata and Link styling
 \RequirePackage{xcolor}   % color definitions
-\RequirePackage[             % Must be after hyperxmp
+\RequirePackage{hyperref} % Must be before hyperxmp
+\RequirePackage{hyperxmp} % PDF metadata and Link styling
+\hypersetup{              % Must setup hyperref after hyperxmp
     frenchlinks,             % Links are in small-caps
     allbordercolors={white}, % Make the boxes around links disappear
     pdftitle={War of the Rebellion: Official Records},
     pdfauthor=\therealauthor,
     pdfcopyright={War of the Rebellion: Official Records \thelicense{}},
     pdflicenseurl=https://creativecommons.org/licenses/by-nc-nd/4.0/,
-]{hyperref}
+}
 
 % Images %%%1
 %
