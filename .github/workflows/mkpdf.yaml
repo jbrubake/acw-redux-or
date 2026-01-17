@@ -10,7 +10,7 @@ jobs:
         uses: dante-ev/latex-action@latest
         with:
           root_file: volume-vii.tex
-          args: -e '-shell-escape'
+          args: --shell-escape
       - name: Upload PDF
         uses: actions/upload-artifact@v4
         with:
