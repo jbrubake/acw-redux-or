@@ -1,0 +1,11 @@
+svg-inkscape/
+*.aux
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.out
+*.pdf
+*.toc
+wordlist.utf-8.add.spl
